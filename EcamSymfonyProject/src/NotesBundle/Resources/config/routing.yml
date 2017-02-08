@@ -1,0 +1,7 @@
+notes_homepage:
+    path:     /
+    defaults: { _controller: NotesBundle:Default:index }
+
+createNote:
+    path:  /createNote
+    defaults: { _controller: NotesBundle:Default:createNote }

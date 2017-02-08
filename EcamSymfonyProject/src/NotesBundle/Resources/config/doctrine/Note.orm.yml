@@ -1,0 +1,20 @@
+NotesBundle\Entity\Note:
+    type: entity
+    table: null
+    repositoryClass: NotesBundle\Repository\NoteRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        title:
+            type: string
+            length: '255'
+            unique: true
+        content:
+            type: string
+            length: '255'
+            nullable: true
+    lifecycleCallbacks: {  }
