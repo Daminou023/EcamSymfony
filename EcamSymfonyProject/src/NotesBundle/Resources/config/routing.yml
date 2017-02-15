@@ -5,3 +5,11 @@ notes_homepage:
 createNote:
     path:  /createNote
     defaults: { _controller: NotesBundle:Default:createNote }
+
+editNote:
+    path:  /editNote/{id}
+    defaults: { _controller: NotesBundle:Default:editNote }
+
+deleteNote:
+    path: /deleteNote/{id}
+    defaults: { _controller: NotesBundle:Default:deleteNote }    

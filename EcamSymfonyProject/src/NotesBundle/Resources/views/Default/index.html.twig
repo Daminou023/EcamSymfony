@@ -1,32 +1,68 @@
 <!DOCTYPE html>
-<html>
-    
+<html>    
     <head>
     	<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
 		<link rel="stylesheet" href="{{ asset('css/main.css') }}" />
         <title>Ecam Notepad</title>
     </head>
-    
-    <body>
 
-    <div class="col-md-10">
-    <h1>Welcome to Ecam Notepad</h1>
-    <a href="{{ path('createNote') }}">Home</a>
-        <ul id="notesList">
-        {% for note in notes %}
-            <li>
-            	<div class="row">
-            		<div class ="row">
-            			<div class = "col-md-4"> {{ note.title }} </div>
-            		</div>
-            		<div class ="row">
-            			<div class = "cold-md-8"> {{ note.content }} </div>
-            		<div>
-            	</div>
-            </li>
+    <body> 
+    <div class="container-fluid">
+
+    <div class="row">
+        <nav class="navbar navbar-default">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <a class="navbar-brand">ECAM Notepad</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="{{ path('notes_homepage') }}">List of your notes</a></li>
+                <li><a href="{{ path('createNote') }}">Create a new note!</a></li>
+            </ul>
+          </div>
+        </nav>        
+    </div>
+
+    {% if app.session.flashbag.has('notice') or app.session.flashbag.has('success') %}
+        <div class="row">
+        {% for flashMessage in app.session.flashBag.get('notice') %}
+            <div class="alert alert-warning alert-dismissable">
+            <strong>Warning!</strong> {{ flashMessage }}
+            </div>
         {% endfor %}
-        </ul>
+        {% for flashMessage in app.session.flashBag.get('success') %}
+            <div class="alert alert-success">
+            <strong>Success!</strong> {{ flashMessage }}
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
     
+
+    <div class="row">
+        <div class="col-md-6">
+        {% for note in notes %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <span>{{ note.title }}</span>
+                    <span class="pull-right">{{ note.date |date("m/d/Y") }}</span>
+                </div>
+                <div class="panel-body">{{ note.content }}</div>
+                <div class="panel-footer">
+                <a href="{{path('editNote',{'id':note.id})}}" class="btn btn-default">
+                    <span class="glyphicon glyphicon-edit"></span>
+                </a>
+                <a href="{{path('deleteNote',{'id':note.id})}}" class="btn btn-default">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+
     </div>
     </body>
+    </div>
+    
 </html>

@@ -2,6 +2,7 @@
 
 namespace NotesBundle\Entity;
 
+
 /**
  * Note
  */
@@ -21,6 +22,16 @@ class Note
      * @var string
      */
     private $content;
+
+    /**
+     * @var string
+     */
+    private $date;
+
+    /**
+    * @var string
+    */
+    private $category;
 
 
     /**
@@ -80,5 +91,45 @@ class Note
     {
         return $this->content;
     }
-}
 
+        public function setDate($date)
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    /**
+     * Get content
+     *
+     * @return string
+     */
+    public function getDate()
+    {
+        return $this->date;
+    }
+
+    /**
+     * Set category
+     *
+     * @param string $category
+     *
+     * @return Note
+     */
+    public function setCategory($category)
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    /**
+     * Get category
+     *
+     * @return string
+     */
+    public function getCategory()
+    {
+        return $this->category;
+    }
+}
