@@ -16,15 +16,15 @@
               <a class="navbar-brand">ECAM Notepad</a>
             </div>
             <ul class="nav navbar-nav">
-                <li class="active"><a href="{{ path('notes_homepage') }}">List of your notes</a></li>
+                <li><a href="{{ path('notes_homepage') }}">List of your notes</a></li>
                 <li><a href="{{ path('createNote') }}">Create a new note!</a></li>
-                <li><a href="{{ path('listCategories') }}">List of categories</a></li>
+                <li class="active"><a href="{{ path('listCategories') }}">List of categories</a></li>
                 <li><a href="{{ path('createCategory') }}">Create a new category!</a></li>
             </ul>
           </div>
         </nav>        
     </div>
-
+    
     {% if app.session.flashbag.has('notice') or app.session.flashbag.has('success') %}
         <div class="row">
         {% for flashMessage in app.session.flashBag.get('notice') %}
@@ -39,32 +39,26 @@
         {% endfor %}
         </div>
     {% endif %}
-    
 
-    <div class="row">
-        <div class="col-md-6">
-        {% for note in notes %}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <span>{{ note.title }}</span>
-                    <span class="pull-right">{{ note.date |date("m/d/Y") }}</span>
-                </div>
-                <div class="panel-body">{{ note.content }}</div>
-                <div class="panel-footer">
-                <a href="{{path('editNote',{'id':note.id})}}" class="btn btn-default">
-                    <span class="glyphicon glyphicon-edit"></span>
-                </a>
-                <a href="{{path('deleteNote',{'id':note.id})}}" class="btn btn-default">
-                    <span class="glyphicon glyphicon-trash"></span>
-                </a>
-                </div>
-            </div>
-        {% endfor %}
-        </div>
+    <div class="container-fluid">
+        <div class=" list-group col-md-6">
+            {% for category in categories %}
+
+              <span class="list-group-item clearfix">
+                <span class="glyphicon glyphicon-file"></span>
+                {{ category.label }}
+                <span class="pull-right">
+                   <a href="{{path('editCategory',{'id':category.id})}}" class="btn btn-xs btn-default">
+                        <span class="glyphicon glyphicon-edit"></span>
+                    </a>
+                    <a href="{{path('deleteCategory',{'id':category.id})}}" class="btn btn-xs btn-default">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </a>
+                </span>
+              </span>
+            {% endfor %}
+        </div>        
     </div>
-
     </div>
     </body>
-    </div>
-    
 </html>

@@ -2,14 +2,13 @@
 
 namespace NotesBundle\Entity;
 
-
 /**
  * Note
  */
 class Note
 {
     /**
-     * @var int
+     * @var integer
      */
     private $id;
 
@@ -24,20 +23,20 @@ class Note
     private $content;
 
     /**
-     * @var string
+     * @var \DateTime
      */
     private $date;
 
     /**
-    * @var string
-    */
+     * @var \NotesBundle\Entity\Category
+     */
     private $category;
 
 
     /**
      * Get id
      *
-     * @return int
+     * @return integer
      */
     public function getId()
     {
@@ -92,7 +91,14 @@ class Note
         return $this->content;
     }
 
-        public function setDate($date)
+    /**
+     * Set date
+     *
+     * @param \DateTime $date
+     *
+     * @return Note
+     */
+    public function setDate($date)
     {
         $this->date = $date;
 
@@ -100,9 +106,9 @@ class Note
     }
 
     /**
-     * Get content
+     * Get date
      *
-     * @return string
+     * @return \DateTime
      */
     public function getDate()
     {
@@ -112,11 +118,11 @@ class Note
     /**
      * Set category
      *
-     * @param string $category
+     * @param \NotesBundle\Entity\Category $category
      *
      * @return Note
      */
-    public function setCategory($category)
+    public function setCategory(\NotesBundle\Entity\Category $category = null)
     {
         $this->category = $category;
 
@@ -126,10 +132,11 @@ class Note
     /**
      * Get category
      *
-     * @return string
+     * @return \NotesBundle\Entity\Category
      */
     public function getCategory()
     {
         return $this->category;
     }
 }
+

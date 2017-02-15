@@ -12,24 +12,49 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 use NotesBundle\Entity\Note;
+use NotesBundle\Entity\Category;
 // use NotesBundle\Form\NoteType;
 
 class DefaultController extends Controller{
 
+	public function getNotesAction(){
+		$em = $this->getDoctrine()->getManager();
+		$notes = $em->getRepository('NotesBundle:Note')->findAll();
+		return $notes;
+	}
+
+	public function getCategoriesAction(){
+		$em = $this->getDoctrine()->getManager();
+		$categories = $em->getRepository('NotesBundle:Category')->findAll();
+		return $categories;	
+	}
+
     public function indexAction(){
-			$em = $this->getDoctrine()->getManager();
-			$notes = $em->getRepository('NotesBundle:Note')->findAll();
+			$notes = $this->getNotesAction();
 			if (!$notes) {
-				//throw $this->createNotFoundException('Uh-oh, no Notes found! create a new one perhaps?');
 				$this->addFlash('notice', 'Oops! there are no notes yet! create one perhaps?');
 		}
 		return $this->render('NotesBundle:Default:index.html.twig',array('notes' => $notes));
+	}
+
+    public function listCategoriesAction(){
+			$categories = $this->getCategoriesAction();
+			if (!$categories) {
+				$this->addFlash('notice', 'Oops! there are no categories yet! create one perhaps?');
+		}
+		return $this->render('NotesBundle:Default:listCategories.html.twig',array('categories' => $categories));
 	}
 
 	public function createNoteAction(Request $request){
 
 		$note = new Note();
 		return $this->editNoteAction($note,$request);
+	}
+
+	public function createCategoryAction(Request $request){
+
+		$category = new Category();
+		return $this->editCategoryAction($category,$request);
 	}
 
 	public function deleteNoteAction(Note $note){
@@ -47,17 +72,27 @@ class DefaultController extends Controller{
         
 	}
 
+	public function deleteCategoryAction(Category $category){
+
+        if (!$category) {
+            throw $this->createNotFoundException('Error! no note found for id '.$id);
+        }
+		$em = $this->getDoctrine()->getEntityManager();
+        $em->remove($category);
+        $em->flush();
+        
+        // return new Response('Note deleted!');
+        $this->addFlash('notice', 'Category has been deleted!');
+        return $this->redirectToRoute('listCategories');
+        
+	}	
+
 	public function editNoteAction(Note $note, Request $request){
 
+		$categories = $this->getCategoriesAction();
 		$form = $this->createFormBuilder($note)
 			->add('title', TextType::class, array('label' => 'Note Title'))
 			->add('content', TextareaType::class, array('label' => 'Note Content'))
-			->add('category', ChoiceType::class, array(
-				'label' => 'Note Category',
-				'choices' => array('Category1'=>'Category1',
-								   'Category2'=>'Category2',
-								   'Category3'=>'Category3'))
-			)
 			->add('date',DateType::class,array('label'=>'Date:','widget'=>'choice'))
 			->getForm();
 
@@ -67,6 +102,16 @@ class DefaultController extends Controller{
 			else {
 				$form->add('save', SubmitType::class, array('label' => 'Add note to collection','attr' => array('class'=>'btn btn-primary')));	
 			}
+
+			foreach ($categories as $category){
+				$test[$category->getlabel()] = $category;
+			}
+		
+			$form->add('category', ChoiceType::class, array(
+				'label' => 'Note Category',
+				'choices' => $test)
+			);
+			
 
 		$form->handleRequest($request);
 		$note = $form->getData();
@@ -85,6 +130,39 @@ class DefaultController extends Controller{
 		}
 
 		return $this->render('NotesBundle:Default:noteForm.html.twig', array('form' => $form->createView(),'note'=>$note));
+
+	}
+
+	public function editCategoryAction(Category $category, Request $request){
+
+		$form = $this->createFormBuilder($category)
+			->add('label', TextType::class, array('label' => 'Category Label'))
+			->getForm();
+
+			if ($category->getId() != 0){
+				$form->add('save', SubmitType::class, array('label' => 'Edit this category','attr' => array('class'=>'btn btn-primary')));	
+			}
+			else {
+				$form->add('save', SubmitType::class, array('label' => 'Add new category','attr' => array('class'=>'btn btn-primary')));	
+			}
+
+		$form->handleRequest($request);
+		$category = $form->getData();
+		
+		if ($form->isValid()) {
+			$em = $this->getDoctrine()->getManager();
+			$em->persist($category);
+			$em->flush();
+
+			if ($category->getId() != 0){
+				$this->addFlash('success', 'Category updated!');}
+			else { 
+				$this->addFlash('success', 'New category created!');}
+			
+			return $this->redirectToRoute('listCategories');
+		}
+
+		return $this->render('NotesBundle:Default:categoryForm.html.twig', array('form' => $form->createView(),'category'=>$category));
 
 	}
         

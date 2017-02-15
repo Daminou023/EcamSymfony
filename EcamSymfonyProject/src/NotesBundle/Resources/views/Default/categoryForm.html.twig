@@ -17,7 +17,7 @@
             </div>
             <ul class="nav navbar-nav">
               <li><a href="{{ path('notes_homepage') }}">List of your notes</a></li>
-              <li {% if note.id == null %} class="active" {% endif %}><a href="{{ path('createNote') }}">Create a new note!</a></li>
+              <li><a href="{{ path('createNote') }}">Create a new note!</a></li>
               <li><a href="{{ path('listCategories') }}">List of categories</a></li>
               <li><a href="{{ path('createCategory') }}">Create a new category!</a></li>
             </ul>
@@ -26,31 +26,11 @@
     </div>
 
     <div class="container-fluid">
-    {% if note.id != null %}
-    <h2>Edit your note!</h2>
-    {% else %}
-    <h2>Create a new note!</h2>
-    {% endif %}
         
         {{ form_start(form) }}
         <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    {{ form_row(form.title) }}
-                </div>
-                <div class="panel-body">
-                    <div>
-                        {{ form_row(form.category)}}
-                    </div>
-                    <div>
-                        {{ form_row(form.content) }}
-                        {{ form_widget(form.date) }}
-                    </div>
-                </div>
-                <div class="panel-footer">
-                        {{ form_widget(form.save)}}
-                </div>          
-            </div>
+                    {{ form_row(form.label)}}
+                    {{ form_widget(form.save)}}
         </div>
         {{ form_end(form) }}
     </div>

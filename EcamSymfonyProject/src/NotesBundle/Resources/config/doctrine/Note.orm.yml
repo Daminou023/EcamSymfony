@@ -1,14 +1,7 @@
-# src/AppBundle/Resources/config/validation.yml
-
 NotesBundle\Entity\Note:
     type: entity
     table: null
     repositoryClass: NotesBundle\Repository\NoteRepository
-    constraints:
-        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: 
-            fields: [title]
-            errorpath: title
-            message: 'error, identical title field.'
     id:
         id:
             type: integer
@@ -28,8 +21,10 @@ NotesBundle\Entity\Note:
             type: date
             length: '255'
             nullable: false
+    manyToOne:
         category:
-            type: string
-            length: '255'
-            nullable: false
+            targetEntity: Category
+            joinColumn:
+                name: category_id
+                referenceColumnName: id            
     lifecycleCallbacks: {  }

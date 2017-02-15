@@ -13,3 +13,19 @@ editNote:
 deleteNote:
     path: /deleteNote/{id}
     defaults: { _controller: NotesBundle:Default:deleteNote }    
+
+listCategories:
+    path: /listCategories
+    defaults: { _controller: NotesBundle:Default:listCategories }
+
+createCategory:
+    path: /createCategory
+    defaults: { _controller: NotesBundle:Default:createCategory }
+
+editCategory:
+    path: /editCategory/{id}
+    defaults: { _controller: NotesBundle:Default:editCategory }
+
+deleteCategory:
+    path: /deleteCategory/{id}
+    defaults: { _controller: NotesBundle:Default:deleteCategory }    
