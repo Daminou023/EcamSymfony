@@ -13,4 +13,8 @@ NotesBundle\Entity\Category:
             type: string
             length: 255
             unique: true
+    oneToMany:
+        notes:
+            targetEntity: Note
+            mappedBy: category
     lifecycleCallbacks: {  }

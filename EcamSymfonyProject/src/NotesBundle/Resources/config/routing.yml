@@ -2,30 +2,71 @@ notes_homepage:
     path:     /
     defaults: { _controller: NotesBundle:Default:index }
 
+listCategories:
+    path: /listCategories
+    defaults: { _controller: NotesBundle:Default:listCategories }    
+
 createNote:
     path:  /createNote
     defaults: { _controller: NotesBundle:Default:createNote }
+
+createCategory:
+    path: /createCategory
+    defaults: { _controller: NotesBundle:Default:createCategory }    
 
 editNote:
     path:  /editNote/{id}
     defaults: { _controller: NotesBundle:Default:editNote }
 
+editCategory:
+    path: /editCategory/{id}
+    defaults: { _controller: NotesBundle:Default:editCategory }    
+
 deleteNote:
     path: /deleteNote/{id}
     defaults: { _controller: NotesBundle:Default:deleteNote }    
 
-listCategories:
-    path: /listCategories
-    defaults: { _controller: NotesBundle:Default:listCategories }
-
-createCategory:
-    path: /createCategory
-    defaults: { _controller: NotesBundle:Default:createCategory }
-
-editCategory:
-    path: /editCategory/{id}
-    defaults: { _controller: NotesBundle:Default:editCategory }
-
 deleteCategory:
     path: /deleteCategory/{id}
-    defaults: { _controller: NotesBundle:Default:deleteCategory }    
+    defaults: { _controller: NotesBundle:Default:deleteCategory }
+
+
+
+
+API_Notes: 
+    path: /API/Notes
+    defaults: { _controller: NotesBundle:API:getNotes }
+
+API_Notes_Create:
+    path: /API/Notes/Create
+    defaults: { _controller: NotesBundle:API:createNote }
+    methods: [POST]
+
+API_Notes_Update:
+    path: /API/Notes/Edit
+    defaults: { _controller: NotesBundle:API:editNote }
+    methods: [PUT]
+
+API_Notes_Delete:
+    path: /API/Notes/Delete/{noteId}
+    defaults: { _controller: NotesBundle:API:deleteNote }
+    methods: [DELETE]
+
+API_Categories: 
+    path: /API/Categories
+    defaults: { _controller: NotesBundle:API:getCategories }
+
+API_Categories_Create:
+    path: /API/Categories/Create
+    defaults: { _controller: NotesBundle:API:createCategory }
+    methods: [POST]
+
+API_Categories_Update:
+    path: /API/Categories/Edit
+    defaults: { _controller: NotesBundle:API:editCategory }
+    methods: [PUT]
+
+API_Categories_Delete:
+    path: /API/Categories/Delete/{categoryId}
+    defaults: { _controller: NotesBundle:API:deleteCategory }
+    methods: [DELETE]

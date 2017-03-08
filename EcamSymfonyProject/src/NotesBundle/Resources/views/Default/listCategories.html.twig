@@ -25,10 +25,10 @@
         </nav>        
     </div>
     
-    {% if app.session.flashbag.has('notice') or app.session.flashbag.has('success') %}
+    {% if app.session.flashbag.has('notice') or app.session.flashbag.has('success') or app.session.flashbag.has('error') %}
         <div class="row">
         {% for flashMessage in app.session.flashBag.get('notice') %}
-            <div class="alert alert-warning alert-dismissable">
+            <div class="alert alert-warning">
             <strong>Warning!</strong> {{ flashMessage }}
             </div>
         {% endfor %}
@@ -37,6 +37,11 @@
             <strong>Success!</strong> {{ flashMessage }}
             </div>
         {% endfor %}
+       {% for flashMessage in app.session.flashBag.get('error') %}
+          <div class="alert alert-danger">
+          <strong>Error!</strong> {{ flashMessage }}
+            </div>
+       {% endfor %}
         </div>
     {% endif %}
 

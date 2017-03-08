@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
+
 use NotesBundle\Entity\Note;
 use NotesBundle\Entity\Category;
 // use NotesBundle\Form\NoteType;
@@ -48,12 +49,14 @@ class DefaultController extends Controller{
 	public function createNoteAction(Request $request){
 
 		$note = new Note();
+		$note->isNew=true;
 		return $this->editNoteAction($note,$request);
 	}
 
 	public function createCategoryAction(Request $request){
 
 		$category = new Category();
+		$category->isNew=true;
 		return $this->editCategoryAction($category,$request);
 	}
 
@@ -76,138 +79,99 @@ class DefaultController extends Controller{
 
         if (!$category) {
             throw $this->createNotFoundException('Error! no note found for id '.$id);
-        }
-		$em = $this->getDoctrine()->getEntityManager();
-        $em->remove($category);
-        $em->flush();
+        } try 
+        {
+			$em = $this->getDoctrine()->getEntityManager();
+	        $em->remove($category);
+	        $em->flush();
+	    } catch(\Doctrine\DBAL\DBALException $e){
+			$this->addFlash('error', 'Can\'t delete category as notes belond to it, delete notes first!');
+			return $this->redirectToRoute('listCategories');
+		}
         
-        // return new Response('Note deleted!');
         $this->addFlash('notice', 'Category has been deleted!');
         return $this->redirectToRoute('listCategories');
-        
 	}	
 
 	public function editNoteAction(Note $note, Request $request){
 
+		$note->type="note";
 		$categories = $this->getCategoriesAction();
+		$messageArray=$this->newOrUpdateMessage($note);
+
+		foreach ($categories as $category){
+			$choiceArray[$category->getlabel()] = $category;
+		}
+
 		$form = $this->createFormBuilder($note)
 			->add('title', TextType::class, array('label' => 'Note Title'))
 			->add('content', TextareaType::class, array('label' => 'Note Content'))
 			->add('date',DateType::class,array('label'=>'Date:','widget'=>'choice'))
+			->add('save', SubmitType::class, array('label' => $messageArray["saveButton"],'attr' => array('class'=>'btn btn-primary')))
+			->add('category', ChoiceType::class, array('label' => 'Note Category','choices' => $choiceArray))
 			->getForm();
-
-			if ($note->getId() != 0){
-				$form->add('save', SubmitType::class, array('label' => 'Edit your note','attr' => array('class'=>'btn btn-primary')));	
-			}
-			else {
-				$form->add('save', SubmitType::class, array('label' => 'Add note to collection','attr' => array('class'=>'btn btn-primary')));	
-			}
-
-			foreach ($categories as $category){
-				$test[$category->getlabel()] = $category;
-			}
-		
-			$form->add('category', ChoiceType::class, array(
-				'label' => 'Note Category',
-				'choices' => $test)
-			);
 			
-
 		$form->handleRequest($request);
 		$note = $form->getData();
 		
 		if ($form->isValid()) {
-			$em = $this->getDoctrine()->getManager();
-			$em->persist($note);
-			$em->flush();
+			try {
+				$em = $this->getDoctrine()->getManager();
+				$em->persist($note);
+				$em->flush();
+			} catch (\Doctrine\DBAL\DBALException $e){
+				$this->addFlash('error', 'Two notes can\'t have the same title!');
+				return $this->render('NotesBundle:Default:noteForm.html.twig', array('form' => $form->createView(),'note'=>$note));
+			}
 
-			if ($note->getId() != 0){
-				$this->addFlash('success', 'Note updated!');}
-			else { 
-				$this->addFlash('success', 'New note created!');}
-			
-			return $this->redirectToRoute('notes_homepage');
+		$this->addFlash('success', $messageArray["flashMessage"]);			
+		return $this->redirectToRoute('notes_homepage');
 		}
-
 		return $this->render('NotesBundle:Default:noteForm.html.twig', array('form' => $form->createView(),'note'=>$note));
-
 	}
 
-	public function editCategoryAction(Category $category, Request $request){
 
+	public function editCategoryAction(Category $category, Request $request){
+		
+		$category->type="category";
+		$messageArray=$this->newOrUpdateMessage($category);
+		
 		$form = $this->createFormBuilder($category)
 			->add('label', TextType::class, array('label' => 'Category Label'))
+			->add('save', SubmitType::class, array('label' => $messageArray["saveButton"],'attr' => array('class'=>'btn btn-primary')))
 			->getForm();
-
-			if ($category->getId() != 0){
-				$form->add('save', SubmitType::class, array('label' => 'Edit this category','attr' => array('class'=>'btn btn-primary')));	
-			}
-			else {
-				$form->add('save', SubmitType::class, array('label' => 'Add new category','attr' => array('class'=>'btn btn-primary')));	
-			}
 
 		$form->handleRequest($request);
 		$category = $form->getData();
 		
 		if ($form->isValid()) {
-			$em = $this->getDoctrine()->getManager();
-			$em->persist($category);
-			$em->flush();
-
-			if ($category->getId() != 0){
-				$this->addFlash('success', 'Category updated!');}
-			else { 
-				$this->addFlash('success', 'New category created!');}
-			
+			try{
+				$em = $this->getDoctrine()->getManager();
+				$em->persist($category);
+				$em->flush();
+			} catch (\Doctrine\DBAL\DBALException $e){
+				$this->addFlash('error', 'Category already exists!');
+				return $this->render('NotesBundle:Default:categoryForm.html.twig', array('form' => $form->createView(),'category'=>$category));
+			}			
+			$this->addFlash('success', $messageArray["flashMessage"]);		
 			return $this->redirectToRoute('listCategories');
 		}
 
 		return $this->render('NotesBundle:Default:categoryForm.html.twig', array('form' => $form->createView(),'category'=>$category));
+	}
 
+	public function newOrUpdateMessage($element){
+		if ($element->getId()!=0){
+			$textArray = [
+				"saveButton"=>"Edit this $element->type",
+				"flashMessage" => "$element->type updated!"];
+		}
+		else {
+			$textArray = [
+				"saveButton"=>"Save this $element->type",
+				"flashMessage" => "New $element->type created!"];
+		}
+		return $textArray;
 	}
         
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-		$form = $this->createForm(NoteType::class, new Note());
-		$form->handleRequest($request);
-
-		if ($form->isValid()) {
-			// Sauvegarder la note dans la DB (a faire plus tard)
-			var_dump($form);
-			return $this->redirect($this->generateUrl('/'));			//?
-		}
-		return $this->render('NotesBundle:Default:noteCreation.html.twig',array('form' => $form->createView()));
-		
-		// array('form' => $form->createView()));
-		// $note = new Note();
-    	// $note->setTitle('FourthNote');
-    	// $note->setContent('The Fourth in a long series');
-
-		 // $em = $this->getDoctrine()->getManager();
-		 // $em->persist($note);
-		 // $em->flush();
-		
-		 // return new Response('New note created! : '.$Note->getTitle());*/
-
-//! ajouter exception si pas de note dans twig. 

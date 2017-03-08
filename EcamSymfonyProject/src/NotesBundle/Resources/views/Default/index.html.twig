@@ -28,7 +28,7 @@
     {% if app.session.flashbag.has('notice') or app.session.flashbag.has('success') %}
         <div class="row">
         {% for flashMessage in app.session.flashBag.get('notice') %}
-            <div class="alert alert-warning alert-dismissable">
+            <div class="alert alert-warning">
             <strong>Warning!</strong> {{ flashMessage }}
             </div>
         {% endfor %}
@@ -57,6 +57,7 @@
                 <a href="{{path('deleteNote',{'id':note.id})}}" class="btn btn-default">
                     <span class="glyphicon glyphicon-trash"></span>
                 </a>
+                <span class="pull-right">{{note.category.label}}</span>
                 </div>
             </div>
         {% endfor %}

@@ -13,6 +13,7 @@ NotesBundle\Entity\Note:
             type: string
             length: '255'
             nullable: false
+            unique: true
         content:
             type: string
             length: '255'
@@ -24,6 +25,7 @@ NotesBundle\Entity\Note:
     manyToOne:
         category:
             targetEntity: Category
+            inversedBy: notes
             joinColumn:
                 name: category_id
                 referenceColumnName: id            
