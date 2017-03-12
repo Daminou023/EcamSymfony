@@ -2,7 +2,10 @@
 <html>    
     <head>
         {% form_theme form 'bootstrap_3_layout.html.twig' %}
-    	<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
 		<link rel="stylesheet" href="{{ asset('css/main.css') }}" />
         <title>Ecam Notepad</title>
     </head>
@@ -57,7 +60,8 @@
                     </div>
                 </div>
                 <div class="panel-footer">
-                        {{ form_widget(form.save)}}
+                      {{ form_widget(form.save)}}
+                      <button id="tagButton" type="button" class="btn btn-primary"> add tag </button>
                 </div>          
             </div>
         </div>
@@ -65,3 +69,24 @@
     </div>
     </body>
 </html>
+
+<script>
+  function wrapText(elementID, openTag, closeTag) {
+
+    var textArea = $('#' + 'form_content');
+    var len = textArea.val().length;    
+    var selectStart = textArea[0].selectionStart;
+    var selectEnd = textArea[0].selectionEnd;
+    var selectedText = textArea.val().substring(selectStart, selectEnd);
+    var replacement = openTag + selectedText + closeTag;
+    textArea.val(textArea.val().substring(0, selectStart) + replacement +
+    textArea.val().substring(selectEnd, len));
+
+
+  }
+  $('#tagButton').click(function() {
+  wrapText("NotesBundle_note_content", "<tag>", "</tag>");
+});
+
+</script>
+

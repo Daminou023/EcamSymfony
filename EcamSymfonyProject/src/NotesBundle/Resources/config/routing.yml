@@ -1,5 +1,5 @@
 notes_homepage:
-    path:     /
+    path: /
     defaults: { _controller: NotesBundle:Default:index }
 
 listCategories:

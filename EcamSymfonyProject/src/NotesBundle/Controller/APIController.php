@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 use NotesBundle\Entity\Note;
 use NotesBundle\Entity\Category;
-// use NotesBundle\Form\NoteType;
 
 class APIController extends Controller{
 

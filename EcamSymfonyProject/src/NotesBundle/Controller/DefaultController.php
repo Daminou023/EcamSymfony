@@ -5,24 +5,49 @@ namespace NotesBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-
 
 use NotesBundle\Entity\Note;
 use NotesBundle\Entity\Category;
-// use NotesBundle\Form\NoteType;
 
 class DefaultController extends Controller{
 
 	public function getNotesAction(){
 		$em = $this->getDoctrine()->getManager();
 		$notes = $em->getRepository('NotesBundle:Note')->findAll();
+		$searchNotes = array();
+		$searchTerm = Null;
+
+		if (isset($_POST['search'])) {
+			$searchTerm = $_POST['search'];	
+		}	
+				
+		foreach($notes as $note) {
+			$dom = new \DOMDocument();
+			$content = $note->getContent();
+			$dom->loadXML($content);
+			$tag = $dom->getElementsByTagName("tag");
+			$note = $this->parseXml($note);
+			foreach ($tag as $tag) {
+				$compare = $tag->nodeValue;
+				if ($compare == $searchTerm){
+					$searchNotes[] = $note;
+				}
+			}
+		}
+
+		if ($searchTerm != ""){
+			return $searchNotes;
+		}
 		return $notes;
 	}
+
 
 	public function getCategoriesAction(){
 		$em = $this->getDoctrine()->getManager();
@@ -31,9 +56,9 @@ class DefaultController extends Controller{
 	}
 
     public function indexAction(){
-			$notes = $this->getNotesAction();
-			if (!$notes) {
-				$this->addFlash('notice', 'Oops! there are no notes yet! create one perhaps?');
+		$notes = $this->getNotesAction();
+		if (!$notes) {
+			$this->addFlash('notice', 'Oops! there are no notes yet! create one perhaps?');
 		}
 		return $this->render('NotesBundle:Default:index.html.twig',array('notes' => $notes));
 	}
@@ -46,15 +71,13 @@ class DefaultController extends Controller{
 		return $this->render('NotesBundle:Default:listCategories.html.twig',array('categories' => $categories));
 	}
 
-	public function createNoteAction(Request $request){
-
+	public function createNoteAction(Request $request) {
 		$note = new Note();
 		$note->isNew=true;
 		return $this->editNoteAction($note,$request);
 	}
 
-	public function createCategoryAction(Request $request){
-
+	public function createCategoryAction(Request $request) {
 		$category = new Category();
 		$category->isNew=true;
 		return $this->editCategoryAction($category,$request);
@@ -98,6 +121,7 @@ class DefaultController extends Controller{
 		$note->type="note";
 		$categories = $this->getCategoriesAction();
 		$messageArray=$this->newOrUpdateMessage($note);
+		$note = $this->parseXml($note);
 
 		foreach ($categories as $category){
 			$choiceArray[$category->getlabel()] = $category;
@@ -115,6 +139,10 @@ class DefaultController extends Controller{
 		$note = $form->getData();
 		
 		if ($form->isValid()) {
+			$note = $this->generateXml($note);
+			if ($note == "xmlError") {
+				return $this->redirectToRoute('notes_homepage');
+			}
 			try {
 				$em = $this->getDoctrine()->getManager();
 				$em->persist($note);
@@ -173,5 +201,43 @@ class DefaultController extends Controller{
 		}
 		return $textArray;
 	}
-        
+
+	public function parseXml($note){
+
+		if ($note->getId()==0) {
+			return $note;
+		}	
+
+		$content = $note->getContent();
+		$content = substr($content,15);
+		$length = strlen($content);
+		$content = substr($content,0,$length-17);
+		$note->setContent($content);
+		return $note;
+
+	}
+     
+	public function generateXml($note){
+		$dom  = new \DOMDocument;
+		$xml  = "<note><content>";
+		$xml .= $note->getContent();
+		$xml .= "</content></note>";
+		try{
+			$dom->loadXML($xml);
+		}
+		catch (\Exception $e){
+			$this->addFlash('error', 'XML structure not valid!');
+			return ("xmlError");
+		}
+		try {
+			$dom->schemaValidate('note.xsd');
+		}
+		catch (\Exception $e){
+			$this->addFlash('error', 'XML not valid!');
+			return ("xmlError");
+		}
+		$note->setContent($xml);
+		return $note;
+	}
+
 }
