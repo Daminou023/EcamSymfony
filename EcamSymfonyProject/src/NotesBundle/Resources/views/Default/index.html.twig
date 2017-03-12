@@ -70,6 +70,7 @@
                     <a id="trashButton" href="{{path('deleteNote',{'id':note.id})}}" class="btn btn-default">
                         <span class="glyphicon glyphicon-trash"></span>
                     </a>
+
                     <span class="tags"></span>
                     <span class="pull-right">{{note.category.label}}</span>
                 </div>
@@ -77,7 +78,6 @@
         {% endfor %}
         </div>
     </div>
-
     </div>
     </body>
     </div>
