@@ -1,3 +1,0 @@
-<!ELEMENT note (content)>
-<!ELEMENT content (#PCDATA|tag)*>
-<!ELEMENT tag (#PCDATA)>

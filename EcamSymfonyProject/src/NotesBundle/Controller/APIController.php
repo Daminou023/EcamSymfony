@@ -12,6 +12,7 @@ use NotesBundle\Entity\Category;
 
 class APIController extends Controller{
 
+// function returns all the notes 
 	public function getNotesAction(){
         $repo = $this->getDoctrine()->getRepository('NotesBundle:Note');
         $notes = $repo->createQueryBuilder('q')
@@ -19,7 +20,7 @@ class APIController extends Controller{
            ->getArrayResult();
         return new JsonResponse($notes);
 	}
-
+// function returns all the categories
 	public function getCategoriesAction(){
 		$repo = $this->getDoctrine()->getRepository('NotesBundle:Category');
         $categories = $repo->createQueryBuilder('q')
@@ -27,7 +28,7 @@ class APIController extends Controller{
            ->getArrayResult();
         return new JsonResponse($categories);
 	}
-
+// function creates note, then redirects to list of notes
 	public function createNoteAction(Request $request){
 	   $info = $request->getContent();
 	   $data = json_decode($info,true);
@@ -44,7 +45,7 @@ class APIController extends Controller{
 	   $em->flush();
 	   return $this->redirect($this->generateUrl('API_Notes'));
 	}
-
+// function creates a category, then redirects to the list of categories
 	public function createCategoryAction(Request $request){ 
 	   $info = $request->getContent();
 	   $data = json_decode($info,true);
@@ -55,7 +56,7 @@ class APIController extends Controller{
 	   $em->flush();
 	   return $this->redirect($this->generateUrl('API_Categories'));
 	}
-
+// function deletes note, redirects to list of notes
 	public function deleteNoteAction($noteId){        
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository('NotesBundle:Note');
@@ -64,7 +65,7 @@ class APIController extends Controller{
         $em->flush();   
         return $this->redirect($this->generateUrl('API_Notes'));
 	}
-
+// function deletes category, redirects to list of categories
 	public function deleteCategoryAction($categoryId){
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository('NotesBundle:Category');
@@ -74,7 +75,7 @@ class APIController extends Controller{
         return $this->redirect($this->generateUrl('API_Categories'));
 
 	}	
-
+// function gets the content of note being saved, sets content of note, then persists to DB.
 	public function editNoteAction(Request $request){
 		$info = $request->getContent();
 	   	$data = json_decode($info,true);
@@ -94,7 +95,7 @@ class APIController extends Controller{
 		return $this->redirect($this->generateUrl('API_Notes'));
 	}
 
-
+// function gets the content of the category being saved, sets contents of category, then persists to DB.
 	public function editCategoryAction(Request $request){
 		$info = $request->getContent();
 	   	$data = json_decode($info,true);
