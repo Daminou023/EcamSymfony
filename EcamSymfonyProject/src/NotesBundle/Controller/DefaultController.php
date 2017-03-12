@@ -34,10 +34,10 @@ class DefaultController extends Controller{
 			$dom = new \DOMDocument();
 			$content = $note->getContent();
 			$dom->loadXML($content);
-			$tag = $dom->getElementsByTagName("tag");
+			$tagColl = $dom->getElementsByTagName("tag");
 			$note = $this->parseXml($note);
 
-			foreach ($tag as $tag) {
+			foreach ($tagColl as $tag) {
 				$compare = $tag->nodeValue;
 				if ($compare == $searchTerm){
 					$searchNotes[] = $note;
@@ -61,7 +61,7 @@ class DefaultController extends Controller{
     public function indexAction(){
 		$notes = $this->getNotesAction();
 		if (!$notes) {
-			$this->addFlash('notice', 'Oops! there are no notes yet! create one perhaps?');
+			$this->addFlash('notice', 'There are no notes yet, create one perhaps?');
 		}
 		return $this->render('NotesBundle:Default:index.html.twig',array('notes' => $notes));
 	}
@@ -123,6 +123,11 @@ class DefaultController extends Controller{
 		$categories = $this->getCategoriesAction();
 		$messageArray=$this->newOrUpdateMessage($note);
 		$note = $this->parseXml($note);
+		/*		check if there are categories, if not ask user to create one first (or else choice list is empty)	*/
+		if (empty($categories)){
+			$this->addFlash('error', 'wait! you need to create a category first.');
+			return $this->redirectToRoute('notes_homepage');
+		}
 		/*		function gets each category to be added to the select list of note form.	*/
 		foreach ($categories as $category){
 			$choiceArray[$category->getlabel()] = $category;
