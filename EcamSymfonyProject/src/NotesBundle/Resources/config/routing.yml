@@ -69,4 +69,4 @@ API_Categories_Update:
 API_Categories_Delete:
     path: /API/Categories/Delete/{categoryId}
     defaults: { _controller: NotesBundle:API:deleteCategory }
-    methods: [DELETE]
+    methods: [DELETE, OPTIONS]

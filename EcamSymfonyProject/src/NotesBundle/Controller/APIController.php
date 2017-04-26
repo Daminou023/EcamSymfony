@@ -57,7 +57,7 @@ class APIController extends Controller{
 	   return $this->redirect($this->generateUrl('API_Categories'));
 	}
 // function deletes note, redirects to list of notes
-	public function deleteNoteAction($noteId){        
+	public function deleteNoteAction($noteId){  
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository('NotesBundle:Note');
         $note = $repo->find($noteId);
@@ -67,11 +67,26 @@ class APIController extends Controller{
 	}
 // function deletes category, redirects to list of categories
 	public function deleteCategoryAction($categoryId){
+        
+        if($_SERVER['REQUEST_METHOD'] == 'OPTIONS') 
+			{
+				$response = new Response();
+				$response->headers->set('Content-Type', 'application/text');
+				$response->headers->set('Access-Control-Allow-Origin', '*');
+				$response->headers->set("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
+				return $response;
+			}
+
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository('NotesBundle:Category');
         $category = $repo->find($categoryId);
-        $em->remove($category);
-        $em->flush();   
+
+        try {
+        	$em->remove($category);
+        	$em->flush(); 
+        } catch(\Doctrine\DBAL\DBALException $e) {
+        	return new Response('Well this is one hell of a pickle!',500);
+        }  
         return $this->redirect($this->generateUrl('API_Categories'));
 
 	}	
