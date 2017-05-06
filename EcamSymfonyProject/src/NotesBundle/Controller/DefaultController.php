@@ -142,8 +142,7 @@ class DefaultController extends Controller{
 			->getForm();			
 		$form->handleRequest($request);
 		$note = $form->getData();
-		/*		note is sent to generateXml function. This function will format the content of the note as xml, can return in case of error. Note is 
-			then persisted to DB. Errors are caught and sent to the user via Flashbag.	*/
+		/*		note is sent to generateXml function. This function will format the content of the note as xml, can return in case of error. Note is then persisted to DB. Errors are caught and sent to the user via Flashbag.	*/
 		if ($form->isValid()) {
 			$note = $this->generateXml($note);
 			if ($note == "xmlError") {
@@ -190,7 +189,7 @@ class DefaultController extends Controller{
 
 		return $this->render('NotesBundle:Default:categoryForm.html.twig', array('form' => $form->createView(),'category'=>$category));
 	}
-	/*		function returns array with what to display in form button. ex: "create" or "Edit" Note. Also returns flash message		*/
+	/*		function returns array with what to display in form button. ex: "create" or "Edit" Note. Also returns flash 		message		*/
 	public function newOrUpdateMessage($element){
 		if ($element->getId()!=0){
 			$textArray = [
@@ -206,6 +205,7 @@ class DefaultController extends Controller{
 	}
 	/*		function removes the <content><note> and </note></content> tags from note content 		*/
 	public function parseXml($note){
+		// 	we don't parse a note if it is new, it has to be created
 		if ($note->getId()==0) {
 			return $note;
 		}	

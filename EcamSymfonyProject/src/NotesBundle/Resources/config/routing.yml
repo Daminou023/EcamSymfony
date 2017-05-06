@@ -32,41 +32,42 @@ deleteCategory:
 
 
 
-
 API_Notes: 
     path: /API/Notes
     defaults: { _controller: NotesBundle:API:getNotes }
+    methods: [GET,OPTIONS]
 
 API_Notes_Create:
     path: /API/Notes/Create
     defaults: { _controller: NotesBundle:API:createNote }
-    methods: [POST]
+    methods: [POST,OPTIONS]
 
 API_Notes_Update:
-    path: /API/Notes/Edit
+    path: /API/Notes/Edit/{noteId}
     defaults: { _controller: NotesBundle:API:editNote }
-    methods: [PUT]
+    methods: [PUT,OPTIONS]
 
 API_Notes_Delete:
     path: /API/Notes/Delete/{noteId}
     defaults: { _controller: NotesBundle:API:deleteNote }
-    methods: [DELETE]
+    methods: [DELETE,OPTIONS]
 
 API_Categories: 
     path: /API/Categories
     defaults: { _controller: NotesBundle:API:getCategories }
+    methods: [GET,OPTIONS]
 
 API_Categories_Create:
     path: /API/Categories/Create
     defaults: { _controller: NotesBundle:API:createCategory }
-    methods: [POST]
+    methods: [POST,OPTIONS]
 
 API_Categories_Update:
     path: /API/Categories/Edit
     defaults: { _controller: NotesBundle:API:editCategory }
-    methods: [PUT]
+    methods: [PUT,OPTIONS]
 
 API_Categories_Delete:
     path: /API/Categories/Delete/{categoryId}
     defaults: { _controller: NotesBundle:API:deleteCategory }
-    methods: [DELETE, OPTIONS]
+    methods: [DELETE,OPTIONS]
