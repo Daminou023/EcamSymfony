@@ -71,16 +71,16 @@ class APIController extends Controller{
 		$note->setCategory($category);
 
 		$note = $this->generateXml($note);
-			if ($note == "xmlError") {
-				$response = new JsonResponse('xml screwup',500);
+			if ($note[0] == "xmlError") {
+				$response = new JsonResponse($note[1],500);
 				return $this->respondToOptionsAction($response);
 			}
 			try {
 				$em = $this->getDoctrine()->getManager();
-				$em->persist($note);
+				$em->persist($note[0]);
 				$em->flush();
 			} catch (\Doctrine\DBAL\DBALException $e){
-				$response = new JsonResponse('DB screwup',500);
+				$response = new JsonResponse('DB error! there is already a note with this name.',500);
 				return $this->respondToOptionsAction($response);
 			}
 	return $this->getNotesAction();
@@ -97,8 +97,13 @@ class APIController extends Controller{
 		$category = new Category;
 		$category->setLabel($data['label']);
 		$em = $this->getDoctrine()->getManager();
-		$em->persist($category);
-		$em->flush();
+        try {
+        	$em->persist($category);
+        	$em->flush(); 
+        } catch(\Doctrine\DBAL\DBALException $e) {
+        	$response = new Response('Error, this category already exists!',500);
+        	return $this->respondToOptionsAction($response);	
+        }  		
 	return $this->getCategoriesAction();		
 	}
 
@@ -129,7 +134,8 @@ class APIController extends Controller{
         	$em->remove($category);
         	$em->flush(); 
         } catch(\Doctrine\DBAL\DBALException $e) {
-        	return new Response('Well this is one hell of a pickle!',500);
+        	$response = new Response('Error, you can\'t delete a category if a note is atached to it!',500);
+        	return $this->respondToOptionsAction($response);	
         }  
     return $this->getCategoriesAction();
 
@@ -149,38 +155,30 @@ class APIController extends Controller{
 		$note = $repo->findOneByid($noteId);
 
 	   	$note->setTitle($data['title']);
-	   	$note->setContent($data['content']); //
+	   	$note->setContent($data['content']);
 		$note->setDate(new \DateTime($data['date']['date']));
 		$repo = $this->getDoctrine()->getRepository('NotesBundle:Category');
 		$categoryLabel = $data['category'];
 		$category = $repo->findOneBylabel($categoryLabel);
 		$note->setCategory($category);
-		$note = $this->parseXml($note);
+
 		$note = $this->generateXml($note);
-
-
-		$em = $this->getDoctrine()->getManager();
-		$em->persist($note);
-		$em->flush();
+		
+		if ($note[0] == "xmlError") {
+			$response = new JsonResponse($note[1],500);
+			return $this->respondToOptionsAction($response);
+		}
+		try {
+			$em = $this->getDoctrine()->getManager();
+			$em->persist($note[0]);
+			$em->flush();
+		} catch (\Doctrine\DBAL\DBALException $e){
+			$response = new JsonResponse('Sorry, another note already has that name!',500);
+			return $this->respondToOptionsAction($response);
+		}		
 		
 	$response = new JsonResponse('It worked! Note edited.',200);
-	return $this->respondToOptionsAction($response);		
-
-/*
-		$note = $this->generateXml($note);
-			if ($note == "xmlError") {
-				$response = new JsonResponse('xml screwup',500);
-				return $this->respondToOptionsAction($response);
-			}
-			try {
-				$em = $this->getDoctrine()->getManager();
-				$em->persist($note);
-				$em->flush();
-			} catch (\Doctrine\DBAL\DBALException $e){
-				$response = new JsonResponse('DB screwup',500);
-				return $this->respondToOptionsAction($response);
-			}
-*/		
+	return $this->respondToOptionsAction($response);			
 	}
 
 // function gets the content of the category being saved, sets contents of category, then persists to DB.
@@ -199,17 +197,6 @@ class APIController extends Controller{
 	return $this->respondToOptionsAction($response);
 	}
 
-	public function parseXml($note){
-		/*if ($note->getId()==0) {
-			return $note;
-		}*/	
-		$content = $note->getContent();
-		$content = substr($content,15);
-		$length = strlen($content);
-		$content = substr($content,0,$length-17);
-		$note->setContent($content);
-		return $note;
-	}
     /*		function adds <note><content> and </notes></content> to note content. Then loads it as XML and validates it.	*/ 
 	public function generateXml($note) {
 		$dom  = new \DOMDocument;
@@ -220,16 +207,16 @@ class APIController extends Controller{
 			$dom->loadXML($xml);
 		}
 		catch (\Exception $e){
-			return ("xmlError");
+			return (["xmlError","XML structure not valid"]);
 		}
 		try {
 			$dom->schemaValidate('note.xsd');
 		}
 		catch (\Exception $e){
-			return ("xmlError");
+			return (["xmlError","XML schema not valid"]);
 		}
 		$note->setContent($xml);
-		return $note;
+		return ([$note]);
 	}
         
 }

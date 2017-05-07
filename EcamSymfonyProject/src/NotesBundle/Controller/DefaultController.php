@@ -5,7 +5,6 @@ namespace NotesBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -73,21 +72,26 @@ class DefaultController extends Controller{
 		}
 		return $this->render('NotesBundle:Default:listCategories.html.twig',array('categories' => $categories));
 	}
+	
 	/* 		function creates new Note based on Entity. Adds "isnew" property to note, will be used to determine what text to put in the
 			buttons etc to show user. Functino then passes not to editNote function to add data to the note before persist to DB. 	*/
+	
 	public function createNoteAction(Request $request) {
 		$note = new Note();
 		$note->isNew = true;
 		return $this->editNoteAction($note,$request);
 	}
-	/*		function creates new Category based on Entity. Adds "isnew" property to category, will be used to determine what text to put in the
-			buttons and texts to show user. function then passes category to EditCategor function to add data to the category before persist to DB 	*/
+	
+	/*		function creates new Category based on Entity. Adds "isnew" property to category, will be used to determine what text to put in the	buttons and texts to show user. function then passes category to EditCategor function to add data to the category before persist to DB 	*/
+
 	public function createCategoryAction(Request $request) {
 		$category = new Category();
 		$category->isNew=true;
 		return $this->editCategoryAction($category,$request);
 	}
+	
 	/* 		function deletes note. Adds flash message for user on success, redirects to list of notes	*/
+	
 	public function deleteNoteAction(Note $note){
         if (!$note) {
             throw $this->createNotFoundException('Error! no note found for id '.$id);
@@ -99,8 +103,10 @@ class DefaultController extends Controller{
         $this->addFlash('notice', 'Note has been deleted!');
         return $this->redirectToRoute('notes_homepage');
 	}
+	
 	/*		function detes Category. Catches error if user deletes a category with notes that belong to it. We cannot 'orphan' the notes
-			by deleting a category they belong to. Adds message for user in case of success.	*/
+	by deleting a category they belong to. Adds message for user in case of success.	*/
+	
 	public function deleteCategoryAction(Category $category){
         if (!$category) {
             throw $this->createNotFoundException('Error! no Category found for id '.$id);
@@ -115,9 +121,10 @@ class DefaultController extends Controller{
 		}
         $this->addFlash('notice', 'Category has been deleted!');
         return $this->redirectToRoute('listCategories');
-	}	
-	/*		function edits Note. Starts by taking current note, sends it to newOrUpdateMessage function to know what to add in the buttons, whether it
-			be "create note" or "edit Note"	*/
+	}
+
+	/*		function edits Note. Starts by taking current note, sends it to newOrUpdateMessage function to know what to add in the buttons, whether it be "create note" or "edit Note"	*/
+
 	public function editNoteAction(Note $note, Request $request){
 		$note->type = "note";
 		$categories = $this->getCategoriesAction();
@@ -142,7 +149,9 @@ class DefaultController extends Controller{
 			->getForm();			
 		$form->handleRequest($request);
 		$note = $form->getData();
+
 		/*		note is sent to generateXml function. This function will format the content of the note as xml, can return in case of error. Note is then persisted to DB. Errors are caught and sent to the user via Flashbag.	*/
+		
 		if ($form->isValid()) {
 			$note = $this->generateXml($note);
 			if ($note == "xmlError") {
@@ -156,13 +165,17 @@ class DefaultController extends Controller{
 				$this->addFlash('error', 'Two notes can\'t have the same title!');
 				return $this->render('NotesBundle:Default:noteForm.html.twig', array('form' => $form->createView(),'note'=>$note));
 			}
+		
 		/*		if success, add message to user and redirect to list of notes.	*/
+		
 		$this->addFlash('success', $messageArray["flashMessage"]);			
 		return $this->redirectToRoute('notes_homepage');
 		}
 		return $this->render('NotesBundle:Default:noteForm.html.twig', array('form' => $form->createView(),'note'=>$note));
 	}
+
 	/*		function very similar to previous editNote Function, but for Categories.		*/
+	
 	public function editCategoryAction(Category $category, Request $request){
 		$category->type="category";
 		$messageArray=$this->newOrUpdateMessage($category);
@@ -190,7 +203,7 @@ class DefaultController extends Controller{
 		return $this->render('NotesBundle:Default:categoryForm.html.twig', array('form' => $form->createView(),'category'=>$category));
 	}
 	/*		function returns array with what to display in form button. ex: "create" or "Edit" Note. Also returns flash 		message		*/
-	public function newOrUpdateMessage($element){
+	public function newOrUpdateMessage($element) {
 		if ($element->getId()!=0){
 			$textArray = [
 				"saveButton"=>"Edit this $element->type",
@@ -203,7 +216,9 @@ class DefaultController extends Controller{
 		}
 		return $textArray;
 	}
+
 	/*		function removes the <content><note> and </note></content> tags from note content 		*/
+	
 	public function parseXml($note){
 		// 	we don't parse a note if it is new, it has to be created
 		if ($note->getId()==0) {
@@ -216,7 +231,9 @@ class DefaultController extends Controller{
 		$note->setContent($content);
 		return $note;
 	}
+
     /*		function adds <note><content> and </notes></content> to note content. Then loads it as XML and validates it.	*/ 
+	
 	public function generateXml($note){
 		$dom  = new \DOMDocument;
 		$xml  = "<note><content>";
