@@ -30,6 +30,9 @@ deleteCategory:
     path: /deleteCategory/{id}
     defaults: { _controller: NotesBundle:Default:deleteCategory }
 
+angularApp:
+    path: /ANGULAR
+    defaults: { _controller: NotesBundle:Default:serveAngular }
 
 
 API_Notes: 

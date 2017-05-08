@@ -64,6 +64,11 @@ class DefaultController extends Controller{
 		}
 		return $this->render('NotesBundle:Default:index.html.twig',array('notes' => $notes));
 	}
+
+    public function serveAngularAction(){
+		return $this->render('NotesBundle:Default:angular.html.twig');
+	}
+
 	/*		function renders twig for list of categories. Calls getCategories function, adds warning if no results.		*/
     public function listCategoriesAction(){
 			$categories = $this->getCategoriesAction();
